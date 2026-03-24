@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/store/cart";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -13,6 +14,7 @@ const navItems = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const cartCount = useCart((s) => s.totalItems());
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -41,7 +43,7 @@ const Navbar = () => {
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
             <ShoppingBag className="h-5 w-5" />
             <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-              0
+              {cartCount}
             </span>
           </Link>
           <button

@@ -4,11 +4,14 @@ import { ShoppingBag } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { products } from "@/data/products";
+import { useCart } from "@/store/cart";
+import { toast } from "sonner";
 
 const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))];
 
 const Shop = () => {
   const [active, setActive] = useState("All");
+  const addItem = useCart((s) => s.addItem);
   const filtered = active === "All" ? products : products.filter((p) => p.category === active);
 
   return (
@@ -75,7 +78,10 @@ const Shop = () => {
                     <h3 className="font-display text-lg font-semibold">{product.name}</h3>
                     <p className="text-primary font-semibold mt-1">${product.price}</p>
                   </div>
-                  <button className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <button
+                    onClick={() => { addItem(product); toast.success(`${product.name} added to cart`); }}
+                    className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
                     <ShoppingBag className="h-4 w-4" />
                   </button>
                 </div>
