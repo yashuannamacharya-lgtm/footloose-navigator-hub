@@ -43,7 +43,7 @@ const Navbar = () => {
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
             <ShoppingBag className="h-5 w-5" />
             <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-              0
+              {cartCount}
             </span>
           </Link>
           <button
