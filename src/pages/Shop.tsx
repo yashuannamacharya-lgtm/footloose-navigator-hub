@@ -11,6 +11,7 @@ const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)
 
 const Shop = () => {
   const [active, setActive] = useState("All");
+  const addItem = useCart((s) => s.addItem);
   const filtered = active === "All" ? products : products.filter((p) => p.category === active);
 
   return (
