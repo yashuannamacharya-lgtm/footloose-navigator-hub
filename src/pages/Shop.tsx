@@ -4,6 +4,8 @@ import { ShoppingBag } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { products } from "@/data/products";
+import { useCart } from "@/store/cart";
+import { toast } from "sonner";
 
 const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))];
 
