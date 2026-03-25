@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Truck, Shield, RotateCcw } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroShoe from "@/assets/hero-shoe.png";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
