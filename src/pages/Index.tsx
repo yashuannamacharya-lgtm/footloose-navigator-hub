@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Truck, Shield, RotateCcw } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroShoe from "@/assets/hero-shoe.png";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -34,12 +35,12 @@ const Index = () => {
               Discover premium footwear crafted for those who demand style without compromising on comfort.
             </p>
             <div className="flex gap-4">
-              <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity flex items-center gap-2">
+              <Link to="/shop" className="bg-primary text-primary-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity flex items-center gap-2">
                 Shop Now <ArrowRight className="h-4 w-4" />
-              </button>
-              <button className="border border-border text-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:bg-secondary transition-colors">
+              </Link>
+              <Link to="/shop" className="border border-border text-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:bg-secondary transition-colors">
                 Explore
-              </button>
+              </Link>
             </div>
           </motion.div>
 
