@@ -125,9 +125,12 @@ const Cart = () => {
                     <span className="font-bold text-primary">${total.toFixed(2)}</span>
                   </div>
                 </div>
-                <button className="w-full mt-6 bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity">
+                <Link
+                  to="/checkout"
+                  className="block w-full text-center mt-6 bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+                >
                   Proceed to Checkout
-                </button>
+                </Link>
                 <Link
                   to="/shop"
                   className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors mt-4"
