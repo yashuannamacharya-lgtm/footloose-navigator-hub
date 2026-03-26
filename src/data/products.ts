@@ -15,6 +15,22 @@ export interface Product {
   tag?: string;
 }
 
+// Map database image_url to local assets
+const imageMap: Record<string, string> = {
+  "/assets/shoe-1.png": shoe1,
+  "/assets/shoe-2.png": shoe2,
+  "/assets/shoe-3.png": shoe3,
+  "/assets/shoe-4.png": shoe4,
+  "/assets/shoe-5.png": shoe5,
+  "/assets/shoe-6.png": shoe6,
+  "/assets/hero-shoe.png": heroShoe,
+};
+
+export const resolveImage = (imageUrl: string): string => {
+  return imageMap[imageUrl] || imageUrl;
+};
+
+// Static fallback products
 export const products: Product[] = [
   { id: "1", name: "Aurelius Gold Edition", price: 249, category: "Sneakers", image: shoe1, tag: "New" },
   { id: "2", name: "Obsidian High-Top", price: 199, category: "Sneakers", image: shoe2, tag: "Best Seller" },

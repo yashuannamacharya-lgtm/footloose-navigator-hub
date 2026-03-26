@@ -1,19 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/store/cart";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   const [placed, setPlaced] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState({
     name: "", email: "", address: "", city: "", zip: "", card: "",
   });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setForm(f => ({
+          ...f,
+          email: session.user.email || "",
+          name: session.user.user_metadata?.full_name || "",
+        }));
+      }
+    });
+  }, []);
 
   const shipping = totalPrice() > 100 ? 0 : 9.99;
   const total = totalPrice() + shipping;
@@ -21,12 +37,61 @@ const Checkout = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.address || !form.city || !form.zip || !form.card) {
       toast.error("Please fill in all fields");
       return;
     }
+
+    if (!user) {
+      toast.error("Please sign in to place an order");
+      navigate("/auth");
+      return;
+    }
+
+    setLoading(true);
+
+    // Create order in database
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user.id,
+        total: total,
+        shipping_name: form.name,
+        shipping_email: form.email,
+        shipping_address: form.address,
+        shipping_city: form.city,
+        shipping_zip: form.zip,
+      })
+      .select()
+      .single();
+
+    if (orderError) {
+      toast.error("Failed to place order. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    // Insert order items
+    const orderItems = items.map((item) => ({
+      order_id: order.id,
+      product_id: item.product.id,
+      product_name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(orderItems);
+
+    setLoading(false);
+
+    if (itemsError) {
+      toast.error("Order created but some items failed to save.");
+    }
+
     setPlaced(true);
     clearCart();
   };
@@ -51,12 +116,20 @@ const Checkout = () => {
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               Thank you for your purchase. You'll receive a confirmation email shortly.
             </p>
-            <Link
-              to="/shop"
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
-            >
-              Continue Shopping
-            </Link>
+            <div className="flex gap-4 justify-center">
+              <Link
+                to="/orders"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+              >
+                View Orders
+              </Link>
+              <Link
+                to="/shop"
+                className="border border-border text-foreground px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:bg-secondary transition-colors"
+              >
+                Continue Shopping
+              </Link>
+            </div>
           </motion.div>
         </main>
         <Footer />
@@ -81,8 +154,15 @@ const Checkout = () => {
             Check<span className="text-primary">out</span>
           </motion.h1>
 
+          {!user && (
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 mb-6">
+              <p className="text-sm text-foreground">
+                <Link to="/auth" className="text-primary font-semibold hover:underline">Sign in</Link> to place your order and track it later.
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-10">
-            {/* Form fields */}
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-card border border-border rounded-xl p-6 space-y-4">
                 <h2 className="font-display text-xl font-bold mb-2">Shipping Information</h2>
@@ -127,7 +207,6 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Summary */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -155,9 +234,10 @@ const Checkout = () => {
               </div>
               <button
                 type="submit"
-                className="w-full mt-6 bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+                disabled={loading}
+                className="w-full mt-6 bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                Place Order
+                {loading ? "Placing Order..." : "Place Order"}
               </button>
             </motion.div>
           </form>
